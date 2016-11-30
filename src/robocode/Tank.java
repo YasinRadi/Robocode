@@ -39,6 +39,8 @@ public class Tank extends ImageObject {
         // Radar
         this.getParts().add(new TankPart(this.getX(), this.getY(), 2, 2, 0, 6,
                 14, true, "radar.png"));
+        this.setWidth( this.getParts().get(0).getWidth());
+        this.setHeight( this.getParts().get(0).getHeight());
     }
 
     public int getUpDown() {
