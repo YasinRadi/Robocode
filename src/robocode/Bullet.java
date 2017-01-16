@@ -26,14 +26,14 @@ public class Bullet extends ShapeObject {
             boolean visible, Color color, int power, Tank trigger) {
         super(0, 0, vx, vy, angle, visible, null, color);
         
-        AffineTransform tranform = AffineTransform.getRotateInstance(
+        AffineTransform transform = AffineTransform.getRotateInstance(
             Math.toRadians(this.getAngle()), 
-                trigger.getX() + (trigger.getWidth() / 2) - 12,
-                trigger.getY() + (trigger.getHeight() / 2) - 11);
+                trigger.getX() + (trigger.getWidth() / 2) - 2,
+                trigger.getY() + (trigger.getHeight() / 2) - 3);
         
-        Point2D before = new Point2D.Double(this.getX() + 15, this.getY() - 11);
+        Point2D before = new Point2D.Double(trigger.getX() + 14, trigger.getY() - 15);
         Point2D after  = new Point2D.Double();
-        after = tranform.transform(before, after);
+        after = transform.transform(before, after);
         
         Ellipse2D bullet = new Ellipse2D.Double(after.getX(), after.getY(), this.getPower(), this.getPower());
         
@@ -76,6 +76,36 @@ public class Bullet extends ShapeObject {
         this.setX(this.getX() + Utilities.calculateCoordX(this.getAngle(), this.getVx()));
         this.setY(this.getY() + Utilities.calculateCoordY(this.getAngle(), this.getVy()));
         this.setShape(new Ellipse2D.Double(this.getX(),this.getY(), this.getPower(), this.getPower()));
+    }
+    
+    public boolean intersects(Tank t)
+    {
+        return this.getShape().intersects(t.getX(), t.getY(), t.getWidth(), t.getHeight());
+    }
+    
+    public boolean intersectsWall()
+    {
+        return this.getX() >= Board.WIDTH - 20|| this.getY() >= Board.HEIGHT - 40 || this.getX() <= 0 + 10 || this.getY() <= 0 + 5;
+    }
+    
+    public void hit(Tank t)
+    {
+        if(this.isVisible())
+        {
+            Board.explosions.add( new Explode("exploteBullet.png", 60, 60, 18, 50, false, (int) this.getX(), (int) this.getY(), 0));
+            this.setVisible(false);
+        }
+            
+    }
+    
+    public void hitWall()
+    {
+        if(this.isVisible() && this.intersectsWall())
+        {
+            Board.explosions.add( new Explode("exploteBullet.png", 60, 60, 18, 50, false, (int) this.getX(), (int) this.getY(), 0));
+            this.setVisible(false);
+        }
+            
     }
 
 }

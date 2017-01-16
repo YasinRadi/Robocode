@@ -29,6 +29,7 @@ public class Tank extends ImageObject {
     public Tank(double x, double y, double vx, double vy, double angle,
             boolean visible) {
         super(x, y, vx, vy, angle, visible, null);
+        
         this.setParts(new ArrayList<>());
         // Body
         this.getParts().add(new TankPart(this.getX(), this.getY(), 2, 2, 0, 0,
@@ -145,9 +146,8 @@ public class Tank extends ImageObject {
     
     public Bullet fire()
     {
-        return new Bullet(3, 3, this.getParts().get(1).getAngle(), true, 
-                Color.RED, 5, this);
-        //
+        return new Bullet(6, 6, this.getParts().get(1).getAngle(), true, 
+                Color.RED, 7, this);
     }
 
     public void keyPressed(KeyEvent e) {
@@ -207,6 +207,7 @@ public class Tank extends ImageObject {
     public void mouseClick(MouseEvent e) 
     {
         Board.bullets.add(this.fire());
+        System.out.println("Fired Bullets: " + Board.bullets.size());
     }
 
 }

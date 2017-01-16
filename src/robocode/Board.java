@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package robocode;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Toolkit;
@@ -18,41 +19,44 @@ import java.util.LinkedList;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-
 public class Board extends JPanel implements ActionListener {
 
     private Timer timer;
-    //private Craft craft;
     private final int DELAY = 10;
     public static final int WIDTH = 800;
     public static final int HEIGHT = 700;
     private Tank t;
     public static int tankWidth, tankHeight;
     public static LinkedList<Bullet> bullets;
+    public static LinkedList<Tank> tanks;
+    //public static Explode explosion;
+    public static LinkedList<Explode> explosions;
 
     public Board() {
 
         initBoard();
     }
-    
+
     private void initBoard() {
-        
+
         addKeyListener(new TAdapter());
-        addMouseWheelListener( new MWAdapter());
-        addMouseListener( new MAdapter());
-        
+        addMouseWheelListener(new MWAdapter());
+        addMouseListener(new MAdapter());
+
         setFocusable(true);
         setBackground(Color.BLACK);
-
-        //craft = new Craft();
+        explosions = new LinkedList<>();
         bullets = new LinkedList<>();
         t = new Tank(140, 160, 3, 3, 0, true);
+        tanks = new LinkedList<>();
+        tanks.add(new Tank(400, 500, 3, 3, 0, true));
+        
         tankWidth = t.getWidth();
         tankHeight = t.getHeight();
         timer = new Timer(DELAY, this);
-        timer.start();        
-    }
+        timer.start();
 
+    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -63,22 +67,48 @@ public class Board extends JPanel implements ActionListener {
         Toolkit.getDefaultToolkit().sync();
     }
 
-    private void doDrawing(Graphics g) {     
-//        Graphics2D g2d = (Graphics2D) g; 
-        //g2d.drawImage(t.getImg(),(int) craft.getX(), (int) craft.getY(), this);
+    private void doDrawing(Graphics g) {
         t.paint(g);
-        for(Bullet b : bullets)
-            b.paint(g);
-        
+        for(Tank tank : tanks)
+        {
+            tank.paint(g);
+        }
+        for (Bullet b : bullets) {
+            if(b.isVisible())
+                b.paint(g);
+        }
+        for(Explode e : explosions)
+        {
+            e.paint(g);
+        }
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         t.move();
-        for(Bullet b : bullets)
+        for (Bullet b : bullets) {
             b.move();
-        repaint();  
+            for(Tank tank : tanks)
+            {
+                if(b.intersects(tank))
+                {
+                    b.hit(tank);
+                }
+            }
+            b.hitWall();
+        }
+        for(int i = bullets.size() - 1; i >= 0; i--)
+        {
+            Bullet del = null;
+            if(!bullets.get(i).isVisible())
+            {
+                del = bullets.get(i);
+            }
+            bullets.remove(del);
+        }
+        repaint();
     }
 
     private class TAdapter extends KeyAdapter {
@@ -93,31 +123,33 @@ public class Board extends JPanel implements ActionListener {
             t.keyPressed(e);
         }
     }
-    
+
     private class MWAdapter extends MouseAdapter {
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             t.mouseWheelMoved(e);
         }
-        
+
     }
-    
-    private class MAdapter extends MouseAdapter{
+
+    private class MAdapter extends MouseAdapter {
 
         @Override
         public void mouseClicked(MouseEvent e) {
             t.mouseClick(e);
         }
-        
+
     }
-    
-    public static boolean isInBoard(double x, double y){
+
+    public static boolean isInBoard(double x, double y) {
         boolean isIn = false;
-        if((0 <= x && x <= Board.WIDTH - tankWidth*1.5) 
-                && (0 <= y && y <= Board.HEIGHT - tankHeight*2)){
+        if ((0 <= x && x <= Board.WIDTH - tankWidth * 1.5)
+                && (0 <= y && y <= Board.HEIGHT - tankHeight * 2)) {
             isIn = true;
-        } 
+        }
         return isIn;
     }
+    
+    
 }
