@@ -96,6 +96,7 @@ public class Board extends JPanel implements ActionListener {
                 {
                     b.hit(tank);
                 }
+                tank.death();
             }
             b.hitWall();
         }

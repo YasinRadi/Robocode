@@ -25,11 +25,12 @@ public class Tank extends ImageObject {
     private int mouseWheel;
     private int mouseRotation;
     private ArrayList<TankPart> parts;
+    private int hp;
 
     public Tank(double x, double y, double vx, double vy, double angle,
             boolean visible) {
         super(x, y, vx, vy, angle, visible, null);
-        
+
         this.setParts(new ArrayList<>());
         // Body
         this.getParts().add(new TankPart(this.getX(), this.getY(), 2, 2, 0, 0,
@@ -40,8 +41,18 @@ public class Tank extends ImageObject {
         // Radar
         this.getParts().add(new TankPart(this.getX(), this.getY(), 2, 2, 0, 6,
                 14, true, "radar.png"));
-        this.setWidth( this.getParts().get(0).getWidth());
-        this.setHeight( this.getParts().get(0).getHeight());
+        this.setWidth(this.getParts().get(0).getWidth());
+        this.setHeight(this.getParts().get(0).getHeight());
+
+        this.setHp(5);
+    }
+
+    public int getHp() {
+        return hp;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
     }
 
     public int getUpDown() {
@@ -87,11 +98,14 @@ public class Tank extends ImageObject {
     @Override
     public void paint(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        for (int i = 0; i < this.parts.size(); i++) {
-            this.getParts().get(i).paint(g);
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        }   
+
+        if (this.isVisible()) {
+            for (int i = 0; i < this.parts.size(); i++) {
+                this.getParts().get(i).paint(g);
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            }
+        }
     }
 
     public void move() {
@@ -125,29 +139,36 @@ public class Tank extends ImageObject {
                 // Tank Parts Angle
                 if (this.getMouseRotation() != 0 && i == 1) {
                     if (this.getRightLeft() < 0) {
-                        this.getParts().get(1).setAngle(this.getParts().get(1).getAngle() - 
-                                this.getVx() + this.getMouseWheel());
+                        this.getParts().get(1).setAngle(this.getParts().get(1).getAngle()
+                                - this.getVx() + this.getMouseWheel());
                     }
                     if (this.getRightLeft() > 0) {
-                        this.getParts().get(1).setAngle(this.getParts().get(1).getAngle() + 
-                                this.getVx() + this.getMouseWheel());
+                        this.getParts().get(1).setAngle(this.getParts().get(1).getAngle()
+                                + this.getVx() + this.getMouseWheel());
                     }
-                    
+
                 } else {
                     this.getParts().get(i).setAngle(this.getAngle());
                 }
             }
         }
         if (this.getMouseWheel() != 0) {
-            this.getParts().get(1).setAngle(this.getParts().get(1).getAngle() + this.getMouseWheel());   
+            this.getParts().get(1).setAngle(this.getParts().get(1).getAngle() + this.getMouseWheel());
         }
         this.setMouseWheel(0);
     }
-    
-    public Bullet fire()
-    {
-        return new Bullet(6, 6, this.getParts().get(1).getAngle(), true, 
+
+    public Bullet fire() {
+        return new Bullet(6, 6, this.getParts().get(1).getAngle(), true,
                 Color.RED, 7, this);
+    }
+
+    public void death() {
+        if (this.getHp() == 0) {
+            this.setHp(-1);
+            this.setVisible(false);
+            Board.explosions.add(new Explode("exploteDeath.png", 130, 130, 64, 50, false, (int) this.getX(), (int) this.getY(), 0));
+        }
     }
 
     public void keyPressed(KeyEvent e) {
@@ -203,9 +224,8 @@ public class Tank extends ImageObject {
             this.setMouseWheel(-2);
         }
     }
-    
-    public void mouseClick(MouseEvent e) 
-    {
+
+    public void mouseClick(MouseEvent e) {
         Board.bullets.add(this.fire());
         System.out.println("Fired Bullets: " + Board.bullets.size());
     }

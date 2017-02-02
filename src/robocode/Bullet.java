@@ -90,9 +90,11 @@ public class Bullet extends ShapeObject {
     
     public void hit(Tank t)
     {
-        if(this.isVisible())
+        if(this.isVisible() && t.isVisible())
         {
             Board.explosions.add( new Explode("exploteBullet.png", 60, 60, 18, 50, false, (int) this.getX(), (int) this.getY(), 0));
+            t.setHp( t.getHp() - 1);
+            System.out.println("Tank hp: " + t.getHp());
             this.setVisible(false);
         }
             
